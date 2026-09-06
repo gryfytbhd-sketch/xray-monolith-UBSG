@@ -249,7 +249,7 @@ public:
 	bool IsGrenadeLauncherAttached() const;
 	bool IsScopeAttached() const;
 	bool IsSilencerAttached() const;
-	bool IsShotgunAttached
+	bool IsShotgunAttached();
 	virtual bool GrenadeLauncherAttachable();
 	virtual bool ScopeAttachable();
 	virtual bool SilencerAttachable();
@@ -382,12 +382,12 @@ protected:
 	shared_str m_sScopeName;
 	shared_str m_sSilencerName;
 	shared_str m_sGrenadeLauncherName;
-	shared_str m_sShotgunName
+	shared_str m_sShotgunName;
 	//ñìåùåíèå èêîíîâ àïãðåéäîâ â èíâåíòàðå
 	int m_iScopeX, m_iScopeY;
 	int m_iSilencerX, m_iSilencerY;
 	int m_iGrenadeLauncherX, m_iGrenadeLauncherY;
-	int m_iShotgunX, m_iShotgunY
+	int m_iShotgunX, m_iShotgunY;
 
 protected:
 

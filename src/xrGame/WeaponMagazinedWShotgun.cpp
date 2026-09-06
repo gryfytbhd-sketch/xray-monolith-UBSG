@@ -36,8 +36,8 @@ void CWeaponMagazinedWShotgun::Load(LPCSTR section)
 	CRocketLauncher::Load(section);
 
 	//// Sounds
-	m_sounds.LoadSound(section, "snd_shoot_grenade", "sndShotG", true, m_eSoundShot);
-	m_sounds.LoadSound(section, "snd_reload_grenade", "sndReloadG", true, m_eSoundReload);
+	m_sounds.LoadSound(section, "snd_shoot_shotgun", "sndShotS", true, m_eSoundShot);
+	m_sounds.LoadSound(section, "snd_reload_shotgun", "sndReloadS", true, m_eSoundReload);
 	m_sounds.LoadSound(section, "snd_switch", "sndSwitch", true, m_eSoundReload);
 
 	m_sFlameParticles2 = pSettings->r_string(section, "grenade_flame_particles");

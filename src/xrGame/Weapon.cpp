@@ -826,6 +826,13 @@ void CWeapon::Load(LPCSTR section)
 		m_iGrenadeLauncherY = pSettings->r_s32(section, "grenade_launcher_y");
 	}
 
+		if (m_eShotgunStatus == ALife::eAddonAttachable)
+	{
+		m_sShotgunName = pSettings->r_string(section, "shotgun_name");
+		m_iShotgunX = pSettings->r_s32(section, "shotgun_x");
+		m_iShotgunY = pSettings->r_s32(section, "shotgun_y");
+	}
+
 	InitAddons();
 	if (pSettings->line_exist(section, "weapon_remove_time"))
 		m_dwWeaponRemoveTime = pSettings->r_u32(section, "weapon_remove_time");

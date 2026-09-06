@@ -143,14 +143,14 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon, CSE_ALifeItem)
 	{
 		eWeaponAddonScope = 0x01,
 		eWeaponAddonGrenadeLauncher = 0x02,
-		eWeaponAddonSilencer = 0x04
+		eWeaponAddonSilencer = 0x04,
 		eWeaponAddonShotgun = 0x08
 	};
 
 	EWeaponAddonStatus m_scope_status;
 	EWeaponAddonStatus m_silencer_status;
 	EWeaponAddonStatus m_grenade_launcher_status;
-	eWeaponAddonShotgun m_shotgun_status;
+	EWeaponAddonStatus m_shotgun_status;
 
 	u32 timestamp;
 	u8 wpn_flags;
