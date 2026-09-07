@@ -756,7 +756,9 @@ void CWeapon::Load(LPCSTR section)
 	m_eGrenadeLauncherStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "grenade_launcher_status");
 
     // just copy for now
-    m_eShotgunStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "grenade_launcher_status");
+    // okay nevermind bad decision
+    //m_eShotgunStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "underbarrel_shotgun_status");
+    m_eShotgunStatus = (ALife::EWeaponAddonStatus)READ_IF_EXISTS(pSettings, r_s32, section, "underbarrel_shotgun_status", 0);
 
 	m_altAimPos = READ_IF_EXISTS(pSettings, r_bool, section, "use_alt_aim_hud", false);
 
@@ -1908,7 +1910,8 @@ bool CWeapon::SilencerAttachable()
 #define WPN_SCOPE "wpn_scope"
 #define WPN_SILENCER "wpn_silencer"
 #define WPN_GRENADE_LAUNCHER "wpn_launcher"
-#define WPN_SHOTGUN_LAUNCHER "wpn_shotgun_launcher"
+// set it to wpn_launcer for testing
+#define WPN_SHOTGUN_LAUNCHER "wpn_launcher"
 #define WPN_SCOPED_HIDE "wpn_scoped_hide"
 #define WPN_SCOPED_UNHIDE "wpn_scoped_unhide"
 
@@ -1970,6 +1973,7 @@ void CWeapon::UpdateHUDAddonsVisibility()
 	else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
 		HudItemData()->set_bone_visible(wpn_grenade_launcher, TRUE, TRUE);
 	//show/hide in Inventory UI i think ??
+    // no, this is for hud model - ver
 	if (ShotgunAttachable())
 	{
 		HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached());
@@ -2062,6 +2066,10 @@ void CWeapon::UpdateAddonsVisibility()
 		//		Log("gl", pWeaponVisual->LL_GetBoneVisible			(bone_id));
 	}
 	//setting up bone hiding i think ???
+
+    // this is world model - ver
+    // also uhhh what are you doing?? - ver
+    bone_id = pWeaponVisual->LL_BoneID(wpn_shotgun_launcher);
 	if (ShotgunAttachable())
 	{
 		if (IsShotgunAttached())
@@ -2071,7 +2079,9 @@ void CWeapon::UpdateAddonsVisibility()
 		}
 		else
 		{
-			isShotgunActive = false;
+            // variable is only used for zoom type handling, no need to differentiate the two
+			//isShotgunActive = false;
+            isGrenadeLauncherActive = false;
 			if (pWeaponVisual->LL_GetBoneVisible(bone_id))
 				pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
 		}

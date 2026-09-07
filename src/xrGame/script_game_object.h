@@ -480,6 +480,7 @@ public:
 	bool Weapon_IsScopeAttached();
 	bool Weapon_IsSilencerAttached();
 
+    int Weapon_UnderbarrelShotgun_Status();
 	int Weapon_GrenadeLauncher_Status();
 	int Weapon_Scope_Status();
 	int Weapon_Silencer_Status();

@@ -468,6 +468,7 @@ public:
 	void AmmoTypeForEach(const ::luabind::functor<bool>& funct);
 	float GetMagazineWeightScript() const { return GetMagazineWeight(m_magazine); }
 	int GetAmmoCount_forType_Script(LPCSTR type) const { return GetAmmoCount_forType(type); }
+    LPCSTR GetShotgunNameScript() const { return *GetShotgunName(); }
 	LPCSTR GetGrenadeLauncherNameScript() const { return *GetGrenadeLauncherName(); }
 	LPCSTR GetSilencerNameScript() const { return *GetSilencerName(); }
 	LPCSTR GetScopeNameScript() const { return *GetScopeName(); }

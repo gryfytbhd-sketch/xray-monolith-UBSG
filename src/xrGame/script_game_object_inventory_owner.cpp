@@ -1479,6 +1479,18 @@ int CScriptGameObject::Weapon_GrenadeLauncher_Status()
 	return (int)weapon->get_GrenadeLauncherStatus();
 }
 
+int CScriptGameObject::Weapon_UnderbarrelShotgun_Status()
+{
+    CWeapon* weapon = smart_cast<CWeapon*>(&object());
+    if (!weapon)
+    {
+        ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,
+            "CWeapon : cannot access class member Weapon_UnderbarrelShotgun_Status!");
+        return (false);
+    }
+    return (int)weapon->get_ShotgunStatus();
+}
+
 int CScriptGameObject::Weapon_Scope_Status()
 {
 	CWeapon* weapon = smart_cast<CWeapon*>(&object());
