@@ -153,6 +153,7 @@ void export_classes	(lua_State *L)
 	CWeaponVal::script_register(L);
 	CWeaponVintorez::script_register(L);
 	CWeaponWalther::script_register(L);
+    CWeaponMagazinedWShotgun::script_register(L);
 	CZoneCampfire::script_register(L);
 	CALifeMonsterBrain::script_register(L);
 	CALifeHumanBrain::script_register(L);

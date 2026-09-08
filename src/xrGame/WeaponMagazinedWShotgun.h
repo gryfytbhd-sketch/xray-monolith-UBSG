@@ -4,6 +4,8 @@
 // include this just in case we want it
 #include "WeaponAutomaticShotgun.h"
 
+#include "script_export_space.h"
+
 //class CWeaponFakeGrenade;
 
 // this is fine because CWeaponAutomaticShotgun inherits CWeaponMagazined already, it just allows us to have tri-state reloads as well
@@ -18,6 +20,7 @@ public:
 	virtual void Load(LPCSTR section);
 	void LoadLauncherKoeffs();
     void LoadShotgunParams();
+    CWeapon ShotgunParams;
     void SwapWeaponParams();
 	virtual BOOL net_Spawn(CSE_Abstract* DC);
 	virtual void net_Destroy();
@@ -141,6 +144,8 @@ public:
 
     // ambigious name but w/e
 	virtual void UpdateShotgunVisibility(bool visibility);
+
+    DECLARE_SCRIPT_REGISTER_FUNCTION
 
 protected:
 	void ApplyLauncherKoeffs();

@@ -97,6 +97,7 @@
 #	include "weaponRG6.h"
 #	include "weaponSSRS.h"
 #	include "WeaponStatMgun.h"
+#   include "WeaponMagazinedWShotgun.h"
 
 #	include "scope.h"
 #	include "silencer.h"
@@ -429,6 +430,7 @@ void CObjectFactory::register_classes()
 
 	// demonized: Custom classes
 	ADD(CWeaponSSRS, CSE_ALifeItemWeaponMagazined, CLSID_OBJECT_W_SSRS, "wpn_ssrs");
+    ADD(CWeaponMagazinedWShotgun, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_MAGAZWSG, "wpn_wmagsg");
 
 #ifndef NO_XR_GAME
 	// hack, for dedicated server only
@@ -472,5 +474,6 @@ void CObjectFactory::register_classes()
 	ADD(CWeaponSSRS, CSE_ALifeItemWeaponMagazined, TEXT2CLSID("_WP_SSRS"), "wpn_ssrs_s");
 	ADD(CProjector, CSE_ALifeObjectProjector, TEXT2CLSID("_S_SEARC"), "projector_s");
 	ADD(CWeaponStatMgun, CSE_ALifeStationaryMgun, TEXT2CLSID("_S_STMGU"), "stmgun_s");
+    ADD(CWeaponMagazinedWShotgun, CSE_ALifeItemWeaponMagazinedWGL, TEXT2CLSID("_WPMAGSG"), "wpn_wmagsg_s");
 #endif // NO_XR_GAME
 }

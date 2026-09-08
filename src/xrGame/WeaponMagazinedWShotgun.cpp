@@ -172,7 +172,7 @@ void CWeaponMagazinedWShotgun::switch2_Reload()
 		{
 			m_needReload = true;
 			PlaySound("sndReloadS", get_LastFP2());
-			PlayHUDMotion("anm_reload_s", TRUE, this, GetState());
+			PlayHUDMotion("anm_reload_g", TRUE, this, GetState());
 			SetPending(TRUE);
 		}
 		else
@@ -280,8 +280,21 @@ void CWeaponMagazinedWShotgun::switch2_EndReload()
 
 void CWeaponMagazinedWShotgun::OnStateSwitch(u32 S, u32 oldState)
 {
+    
     if (!m_bTriStateReload || S != eReload)
     {
+        switch (S)
+        {
+        case eSwitch:
+        {
+            if (!SwitchMode())
+            {
+                SwitchState(eIdle);
+                return;
+            }
+        }
+        break;
+        }
         inherited::OnStateSwitch(S, oldState);
         return;
     }
@@ -405,6 +418,8 @@ void CWeaponMagazinedWShotgun::SwapWeaponParams()
     swap(m_fStartBulletSpeed, m_shotgun_params.bullet_speed);
     swap(fOneShotTime, m_shotgun_params.fOneShotTime);
 
+    swap(fireDispersionBase, m_shotgun_params.fire_dispersion_base);
+
     // damage is a little weird
     // say temp is 1, other is 0.5. 
     float temp = GetHitPower();
@@ -483,31 +498,31 @@ void CWeaponMagazinedWShotgun::AmmoTypeForEach2(const ::luabind::functor<bool> &
 
 bool CWeaponMagazinedWShotgun::Action(u16 cmd, u32 flags)
 {
-	if (m_bShotgunMode && cmd == kWPN_FIRE)
-	{
-		if (IsPending())
-			return false;
+	//if (m_bShotgunMode && cmd == kWPN_FIRE)
+	//{
+	//	if (IsPending())
+	//		return false;
 
-		if (ParentIsActor() && Actor()->is_safemode())
-		{
-			Actor()->set_safemode(false);
+	//	if (ParentIsActor() && Actor()->is_safemode())
+	//	{
+	//		Actor()->set_safemode(false);
 
-			if (iAmmoElapsed)
-				return false;
-		}
+	//		if (iAmmoElapsed)
+	//			return false;
+	//	}
 
-		if (flags & CMD_START)
-		{
-			if (iAmmoElapsed)
-                FireShotgun();
-			else
-				Reload();
+	//	if (flags & CMD_START)
+	//	{
+	//		if (iAmmoElapsed)
+ //               FireShotgun();
+	//		else
+	//			Reload();
 
-			if (GetState() == eIdle)
-				OnEmptyClick();
-		}
-		return true;
-	}
+	//		if (GetState() == eIdle)
+	//			OnEmptyClick();
+	//	}
+	//	return true;
+	//}
 	if (inherited::Action(cmd, flags))
 		return true;
 
@@ -533,6 +548,7 @@ void CWeaponMagazinedWShotgun::state_Fire(float dt)
 	//режим стрельбы подствольника
 	if (m_bShotgunMode)
 	{
+        inherited::state_Fire(dt);
 		/*
 		fTime					-=dt;
 		while (fTime<=0 && (iAmmoElapsed>0) && (IsWorking() || m_bFireSingleShot))
@@ -773,8 +789,8 @@ void CWeaponMagazinedWShotgun::OnAnimationEnd(u32 state)
 		break;
 	case eFire:
 		{
-			if (m_bShotgunMode)
-				Reload();
+			//if (m_bShotgunMode)
+			//	Reload();
 		}
 		break;
 	}
@@ -935,9 +951,11 @@ void CWeaponMagazinedWShotgun::LoadShotgunParams()
         LPCSTR sect = GetShotgunName().c_str();
 
         // small experiment
-        CWeapon ShotgunParams;
+        // made it persistent to avoid unloading it which causes a crash for some reason
         // should load all necessary params and reuses code which is always nice
         ShotgunParams.Load(sect);
+
+        // should probably refactor this so we only load the things we need. do later...
 
         // bullet speed is the ONLY param i cant access, so we do this instead
         m_shotgun_params.bullet_speed = pSettings->r_float(sect, "bullet_speed");
@@ -987,8 +1005,8 @@ void CWeaponMagazinedWShotgun::PlayAnimShow()
 			: PlayHUDMotion("anm_show_w_sg", FALSE, this, GetState(), 1.f, 0.f, false);
 		else
 			iAmmoElapsed == 0 && HudAnimationExist("anm_show_empty_g")
-			? PlayHUDMotion("anm_show_empty_s", FALSE, this, GetState(), 1.f, 0.f, false)
-			: PlayHUDMotion("anm_show_s", FALSE, this, GetState(), 1.f, 0.f, false);
+			? PlayHUDMotion("anm_show_empty_g", FALSE, this, GetState(), 1.f, 0.f, false)
+			: PlayHUDMotion("anm_show_g", FALSE, this, GetState(), 1.f, 0.f, false);
 	}
 	else
 		inherited::PlayAnimShow();
@@ -1157,12 +1175,12 @@ void CWeaponMagazinedWShotgun::PlayAnimShoot()
 {
 	if (m_bShotgunMode)
 	{
-		if (iAmmoElapsed > 1 || !HudAnimationExist("anm_shots_sg"))
+		if (iAmmoElapsed > 1 || !HudAnimationExist("anm_shots_g"))
 		{
-			if (!IsZoomed() || !HudAnimationExist("anm_shots_sg_aim"))
-				PlayHUDMotion("anm_shots_sg", TRUE, this, GetState(), 1.f, 0.f, false);
+			if (!IsZoomed() || !HudAnimationExist("anm_shots_g_aim"))
+				PlayHUDMotion("anm_shots_g", TRUE, this, GetState(), 1.f, 0.f, false);
 			else
-				PlayHUDMotion("anm_shots_sg_aim", TRUE, this, GetState(), 1.f, 0.f, false);
+				PlayHUDMotion("anm_shots_g_aim", TRUE, this, GetState(), 1.f, 0.f, false);
 		}
 		else
 		{
@@ -1227,15 +1245,15 @@ bool CWeaponMagazinedWShotgun::TryPlayAnimBore()
 		}
 		else
 		{
-			if (iAmmoElapsed == 0 && HudAnimationExist("anm_bore_empty_w_gl"))
+			if (iAmmoElapsed == 0 && HudAnimationExist("anm_bore_empty_w_sg"))
 			{
-				PlayHUDMotion("anm_bore_empty_w_gl", TRUE, NULL, GetState());
+				PlayHUDMotion("anm_bore_empty_w_sg", TRUE, NULL, GetState());
 				return true;
 			}
 
-			if (HudAnimationExist("anm_bore_w_gl"))
+			if (HudAnimationExist("anm_bore_w_sg"))
 			{
-				PlayHUDMotion("anm_bore_w_gl", TRUE, NULL, GetState());
+				PlayHUDMotion("anm_bore_w_sg", TRUE, NULL, GetState());
 				return true;
 			}
 		}
@@ -1259,7 +1277,7 @@ void CWeaponMagazinedWShotgun::save(NET_Packet& output_packet)
 	save_data(m_magazine2.size(), output_packet);
 
     // i *think* this should be okay and doesnt affect old saves
-    save_data(m_ammoType2, output_packet);
+    //save_data(m_ammoType2, output_packet);
 }
 
 void CWeaponMagazinedWShotgun::load(IReader& input_packet)
@@ -1279,11 +1297,11 @@ void CWeaponMagazinedWShotgun::load(IReader& input_packet)
 	load_data(sz, input_packet);
 
     // load correct ammo type
-    u8 Type = 0;
-    load_data(Type, input_packet);
+    //u8 Type = 0;
+    //load_data(Type, input_packet);
 
 	CCartridge l_cartridge;
-	l_cartridge.Load(m_ammoTypes2[Type].c_str(), Type);
+	l_cartridge.Load(m_ammoTypes2[0].c_str(), 0);
 
     if (sz > 0xffff)
     {
@@ -1299,7 +1317,11 @@ void CWeaponMagazinedWShotgun::net_Export(NET_Packet& P)
 {
 	P.w_u8(m_bShotgunMode ? 1 : 0);
 
-	inherited::net_Export(P);
+	CWeaponMagazined::net_Export(P);
+    // this below crashes because i used a mismatching pair of server class vs object class !
+    // inherited::net_Export(P);
+    // to do: create a new server class for this class with corrct memory sizes ! see xrServer_process_update.cpp and add the class in
+    // xrServer_Objects_Alife.cpp
 }
 
 void CWeaponMagazinedWShotgun::net_Import(NET_Packet& P)
@@ -1309,7 +1331,9 @@ void CWeaponMagazinedWShotgun::net_Import(NET_Packet& P)
 	if (NewMode != m_bShotgunMode)
 		SwitchMode();
 
-	inherited::net_Import(P);
+    CWeaponMagazined::net_Import(P);
+    // this below crashes because i used a mismatching pair of server class vs object class ! see above
+    // inherited::net_Import(P);
 }
 
 float CWeaponMagazinedWShotgun::Weight() const

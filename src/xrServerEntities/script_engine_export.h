@@ -139,6 +139,7 @@
 #	include "WeaponVal.h"
 #	include "WeaponVintorez.h"
 #	include "WeaponWalther.h"
+#   include "WeaponMagazinedWShotgun.h"
 #	include "saved_game_wrapper.h"
 #	include "mincer.h"
 #	include "mosquitobald.h"

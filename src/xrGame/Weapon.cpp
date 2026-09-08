@@ -437,7 +437,9 @@ void CWeapon::SwitchZoomType()
 		{
             SetZoomTypeAndParams(1);
 		}
-        else if (IsGrenadeLauncherAttached())
+        // also add if shotgun is attached
+        //else if (IsGrenadeLauncherAttached())
+        else if (IsGrenadeLauncherAttached() || IsShotgunAttached())
 		{
             ToggleGrenadeLauncher();
             return;
@@ -471,7 +473,8 @@ void CWeapon::ToggleGrenadeLauncher()
 		zoomTypeBeforeLauncher = m_zoomtype;
 	}
 
-	if (IsGrenadeLauncherAttached())
+	//if (IsGrenadeLauncherAttached())
+    if (IsGrenadeLauncherAttached() || IsShotgunAttached())
 	{
 		isGrenadeLauncherActive = !isGrenadeLauncherActive;
 		SwitchState(eSwitch);
