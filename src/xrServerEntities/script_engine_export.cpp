@@ -153,7 +153,6 @@ void export_classes	(lua_State *L)
 	CWeaponVal::script_register(L);
 	CWeaponVintorez::script_register(L);
 	CWeaponWalther::script_register(L);
-    CWeaponMagazinedWShotgun::script_register(L);
 	CZoneCampfire::script_register(L);
 	CALifeMonsterBrain::script_register(L);
 	CALifeHumanBrain::script_register(L);
@@ -194,6 +193,7 @@ void export_classes	(lua_State *L)
 	CSE_ALifeItemWeapon::script_register(L);
 	CSE_ALifeItemWeaponMagazined::script_register(L);
 	CSE_ALifeItemWeaponMagazinedWGL::script_register(L);
+    CSE_ALifeItemWeaponMagazinedWSG::script_register(L);
 	CSE_ALifeItemWeaponShotGun::script_register(L);
 	CSE_ALifeItemWeaponAutoShotGun::script_register(L);
 	CSE_ALifeItemDetector::script_register(L);
