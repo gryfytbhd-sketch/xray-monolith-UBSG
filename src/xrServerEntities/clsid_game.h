@@ -231,3 +231,5 @@
 
 // demonized: Custom classes
 #define CLSID_OBJECT_W_SSRS			MK_CLSID('_','W','_','S','S','R','S',' ')
+// underbarrel shotgun
+#define CLSID_OBJECT_W_MAGAZWSG			MK_CLSID('W','_','W','M','A','G','S','G')

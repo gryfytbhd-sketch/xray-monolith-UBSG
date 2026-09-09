@@ -27,6 +27,8 @@ void CWeaponAK74::script_register	(lua_State *L)
 			.def("IsGrenadeLauncherAttached", &CWeapon::IsGrenadeLauncherAttached)
 			.def("GrenadeLauncherAttachable", &CWeapon::GrenadeLauncherAttachable)
 			.def("GetGrenadeLauncherName", &CWeapon::GetGrenadeLauncherNameScript)
+
+            .def("GetShotgunNameScript", &CWeapon::GetShotgunNameScript)
 			
 			.def("IsScopeAttached", &CWeapon::IsScopeAttached)
 			.def("ScopeAttachable", &CWeapon::ScopeAttachable)

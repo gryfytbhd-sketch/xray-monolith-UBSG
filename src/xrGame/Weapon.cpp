@@ -437,7 +437,9 @@ void CWeapon::SwitchZoomType()
 		{
             SetZoomTypeAndParams(1);
 		}
-        else if (IsGrenadeLauncherAttached())
+        // also add if shotgun is attached
+        //else if (IsGrenadeLauncherAttached())
+        else if (IsGrenadeLauncherAttached() || IsShotgunAttached())
 		{
             ToggleGrenadeLauncher();
             return;
@@ -471,7 +473,8 @@ void CWeapon::ToggleGrenadeLauncher()
 		zoomTypeBeforeLauncher = m_zoomtype;
 	}
 
-	if (IsGrenadeLauncherAttached())
+	//if (IsGrenadeLauncherAttached())
+    if (IsGrenadeLauncherAttached() || IsShotgunAttached())
 	{
 		isGrenadeLauncherActive = !isGrenadeLauncherActive;
 		SwitchState(eSwitch);
@@ -755,6 +758,11 @@ void CWeapon::Load(LPCSTR section)
 	m_eSilencerStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "silencer_status");
 	m_eGrenadeLauncherStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "grenade_launcher_status");
 
+    // just copy for now
+    // okay nevermind bad decision
+    //m_eShotgunStatus = (ALife::EWeaponAddonStatus)pSettings->r_s32(section, "underbarrel_shotgun_status");
+    m_eShotgunStatus = (ALife::EWeaponAddonStatus)READ_IF_EXISTS(pSettings, r_s32, section, "underbarrel_shotgun_status", 0);
+
 	m_altAimPos = READ_IF_EXISTS(pSettings, r_bool, section, "use_alt_aim_hud", false);
 
 	m_zoom_params.m_bZoomEnabled = !!pSettings->r_bool(section, "zoom_enabled");
@@ -826,7 +834,7 @@ void CWeapon::Load(LPCSTR section)
 		m_iGrenadeLauncherY = pSettings->r_s32(section, "grenade_launcher_y");
 	}
 
-		if (m_eShotgunStatus == ALife::eAddonAttachable)
+    if (m_eShotgunStatus == ALife::eAddonAttachable)
 	{
 		m_sShotgunName = pSettings->r_string(section, "shotgun_name");
 		m_iShotgunX = pSettings->r_s32(section, "shotgun_x");
@@ -1887,6 +1895,11 @@ bool CWeapon::GrenadeLauncherAttachable()
 	return (ALife::eAddonAttachable == m_eGrenadeLauncherStatus);
 }
 
+bool CWeapon::ShotgunAttachable()
+{
+    return(ALife::eAddonAttachable == m_eShotgunStatus);
+}
+
 bool CWeapon::ScopeAttachable()
 {
 	return (ALife::eAddonAttachable == m_eScopeStatus);
@@ -1900,6 +1913,8 @@ bool CWeapon::SilencerAttachable()
 #define WPN_SCOPE "wpn_scope"
 #define WPN_SILENCER "wpn_silencer"
 #define WPN_GRENADE_LAUNCHER "wpn_launcher"
+// set it to wpn_launcer for testing
+#define WPN_SHOTGUN_LAUNCHER "wpn_launcher"
 #define WPN_SCOPED_HIDE "wpn_scoped_hide"
 #define WPN_SCOPED_UNHIDE "wpn_scoped_unhide"
 
@@ -1911,6 +1926,7 @@ void CWeapon::UpdateHUDAddonsVisibility()
 	static shared_str wpn_scope = WPN_SCOPE;
 	static shared_str wpn_silencer = WPN_SILENCER;
 	static shared_str wpn_grenade_launcher = WPN_GRENADE_LAUNCHER;
+	static shared_str wpn_shotgun_launcher = WPN_SHOTGUN_LAUNCHER;
 	static shared_str wpn_scoped_hide = WPN_SCOPED_HIDE;
 	static shared_str wpn_scoped_unhide = WPN_SCOPED_UNHIDE;
 
@@ -1959,6 +1975,20 @@ void CWeapon::UpdateHUDAddonsVisibility()
 	}
 	else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
 		HudItemData()->set_bone_visible(wpn_grenade_launcher, TRUE, TRUE);
+	//show/hide in Inventory UI i think ??
+    // no, this is for hud model - ver
+	if (ShotgunAttachable())
+	{
+		HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached());
+	}
+	if (m_eShotgunStatus == ALife::eAddonDisabled)
+	{
+		HudItemData()->set_bone_visible(wpn_shotgun_launcher, FALSE, TRUE);
+	}
+	else if (m_eShotgunStatus == ALife::eAddonPermanent)
+	{
+		HudItemData()->set_bone_visible(wpn_shotgun_launcher, TRUE, TRUE);
+	}
 }
 
 void CWeapon::UpdateAddonsVisibility()
@@ -1966,6 +1996,7 @@ void CWeapon::UpdateAddonsVisibility()
 	static shared_str wpn_scope = WPN_SCOPE;
 	static shared_str wpn_silencer = WPN_SILENCER;
 	static shared_str wpn_grenade_launcher = WPN_GRENADE_LAUNCHER;
+	static shared_str wpn_shotgun_launcher = WPN_SHOTGUN_LAUNCHER;
 
 	IKinematics* pWeaponVisual = smart_cast<IKinematics*>(Visual());
 	R_ASSERT(pWeaponVisual);
@@ -2037,6 +2068,32 @@ void CWeapon::UpdateAddonsVisibility()
 		pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
 		//		Log("gl", pWeaponVisual->LL_GetBoneVisible			(bone_id));
 	}
+	//setting up bone hiding i think ???
+
+    // this is world model - ver
+    // also uhhh what are you doing?? - ver
+    bone_id = pWeaponVisual->LL_BoneID(wpn_shotgun_launcher);
+	if (ShotgunAttachable())
+	{
+		if (IsShotgunAttached())
+		{
+			if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
+				pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
+		}
+		else
+		{
+            // variable is only used for zoom type handling, no need to differentiate the two
+			//isShotgunActive = false;
+            isGrenadeLauncherActive = false;
+			if (pWeaponVisual->LL_GetBoneVisible(bone_id))
+				pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+		}
+	}
+	if (m_eShotgunStatus== ALife::eAddonDisabled && bone_id != BI_NONE &&
+		pWeaponVisual->LL_GetBoneVisible(bone_id))
+		{
+			pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+		}
 
 	pWeaponVisual->CalculateBones_Invalidate();
 	pWeaponVisual->CalculateBones(TRUE);

@@ -1,18 +1,27 @@
 #pragma once
 #include "weaponmagazined.h"
 
+// include this just in case we want it
+#include "WeaponAutomaticShotgun.h"
+
+#include "script_export_space.h"
+
 //class CWeaponFakeGrenade;
 
-
-class CWeaponMagazinedWShotgun : public CWeaponMagazined
+// this is fine because CWeaponAutomaticShotgun inherits CWeaponMagazined already, it just allows us to have tri-state reloads as well
+class CWeaponMagazinedWShotgun : public CWeaponAutomaticShotgun
 {
-	typedef CWeaponMagazined inherited;
+    // wrong inherited oops, should be automatic shotgun
+	typedef CWeaponAutomaticShotgun inherited;
 public:
 	CWeaponMagazinedWShotgun(ESoundTypes eSoundType = SOUND_TYPE_WEAPON_SUBMACHINEGUN);
 	virtual ~CWeaponMagazinedWShotgun();
 
 	virtual void Load(LPCSTR section);
 	void LoadLauncherKoeffs();
+    void LoadShotgunParams();
+    CWeapon ShotgunParams;
+    void SwapWeaponParams();
 	virtual BOOL net_Spawn(CSE_Abstract* DC);
 	virtual void net_Destroy();
 	virtual void net_Export(NET_Packet& P);
@@ -67,7 +76,14 @@ public:
 	virtual void PlayAnimModeSwitch();
 	virtual void PlayAnimFireModeSwitch();
 	virtual bool TryPlayAnimBore();
+	//for tri state reload
+	virtual void switch2_StartReload();
+	virtual void switch2_AddCartgidge();
+	virtual void switch2_EndReload();
 
+	virtual void PlayAnimOpenWeapon();
+	virtual void PlayAnimAddOneCartridgeWeapon();
+	virtual void PlayAnimCloseWeapon();
 	//Script exports
 	void SetAmmoElapsed2(int ammo_count);
 	void AmmoTypeForEach2(const ::luabind::functor<bool>& funct);
@@ -117,13 +133,22 @@ public:
 	xr_vector<CCartridge> m_magazine2;
 
 	bool m_bShotgunMode;
+	//adding this to track if it's mag fed or needs tri state reload
+	bool m_bUBSGIsMagFed;
 
 	CCartridge m_DefaultCartridge2;
 	u8 iAmmoElapsed2;
 
+    // ver, ammo variable for ammo capacity of ubsg (not defined before)
+    int iMagazineSizeShotgun;
+
+    // ambigious name but w/e
 	virtual void UpdateShotgunVisibility(bool visibility);
+
+    DECLARE_SCRIPT_REGISTER_FUNCTION
 
 protected:
 	void ApplyLauncherKoeffs();
 	void ResetLauncherKoeffs();
+
 };

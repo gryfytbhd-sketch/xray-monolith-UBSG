@@ -290,6 +290,7 @@ class_<CScriptGameObject> script_register_game_object2(class_<CScriptGameObject>
 		.def("weapon_is_scope", SAFE_WRAP(&CScriptGameObject::Weapon_IsScopeAttached))
 		.def("weapon_is_silencer", SAFE_WRAP(&CScriptGameObject::Weapon_IsSilencerAttached))
 
+        .def("Weapon_UnderbarrelShotgun_Status", SAFE_WRAP(&CScriptGameObject::Weapon_UnderbarrelShotgun_Status))
 		.def("weapon_grenadelauncher_status", SAFE_WRAP(&CScriptGameObject::Weapon_GrenadeLauncher_Status))
 		.def("weapon_scope_status", SAFE_WRAP(&CScriptGameObject::Weapon_Scope_Status))
 		.def("weapon_silencer_status", SAFE_WRAP(&CScriptGameObject::Weapon_Silencer_Status))

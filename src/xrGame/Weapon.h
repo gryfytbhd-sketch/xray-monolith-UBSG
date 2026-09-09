@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../xrphysics/PhysicsShell.h"
 #include "weaponammo.h"
@@ -249,7 +249,8 @@ public:
 	bool IsGrenadeLauncherAttached() const;
 	bool IsScopeAttached() const;
 	bool IsSilencerAttached() const;
-	bool IsShotgunAttached();
+    // needs to be const
+	bool IsShotgunAttached() const;
 	virtual bool GrenadeLauncherAttachable();
 	virtual bool ScopeAttachable();
 	virtual bool SilencerAttachable();
@@ -467,6 +468,7 @@ public:
 	void AmmoTypeForEach(const ::luabind::functor<bool>& funct);
 	float GetMagazineWeightScript() const { return GetMagazineWeight(m_magazine); }
 	int GetAmmoCount_forType_Script(LPCSTR type) const { return GetAmmoCount_forType(type); }
+    LPCSTR GetShotgunNameScript() const { return *GetShotgunName(); }
 	LPCSTR GetGrenadeLauncherNameScript() const { return *GetGrenadeLauncherName(); }
 	LPCSTR GetSilencerNameScript() const { return *GetSilencerName(); }
 	LPCSTR GetScopeNameScript() const { return *GetScopeName(); }
@@ -714,6 +716,9 @@ public:
 	float GetZoomCamMaxAngleHorz() { return zoom_cam_recoil.MaxAngleHorz; };
 	float GetZoomCamStepAngleHorz() { return zoom_cam_recoil.StepAngleHorz; };
 
+    bool GetCamReturnMode() { return cam_recoil.ReturnMode; };
+    bool GetZoomCamReturnMode() { return zoom_cam_recoil.ReturnMode; };
+
 	// Setters
 	void SetCamRelaxSpeed(float val) { cam_recoil.RelaxSpeed = val; };
 	void SetCamRelaxSpeed_AI(float val) { cam_recoil.RelaxSpeed_AI = val; };
@@ -731,6 +736,9 @@ public:
 	void SetZoomCamMaxAngleVert(float val) { zoom_cam_recoil.MaxAngleVert = val; };
 	void SetZoomCamMaxAngleHorz(float val) { zoom_cam_recoil.MaxAngleHorz = val; };
 	void SetZoomCamStepAngleHorz(float val) { zoom_cam_recoil.StepAngleHorz = val; };
+
+    void SetCamReturnMode(bool val) { cam_recoil.ReturnMode = val; };
+    void SetZoomCamReturnMode(bool val) { zoom_cam_recoil.ReturnMode = val; };
 
 protected:
 	//ôàêòîð óâåëè÷åíèÿ äèñïåðñèè ïðè ìàêñèìàëüíîé èçíîøåíîñòè

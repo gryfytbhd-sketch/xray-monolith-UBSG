@@ -1479,6 +1479,18 @@ int CScriptGameObject::Weapon_GrenadeLauncher_Status()
 	return (int)weapon->get_GrenadeLauncherStatus();
 }
 
+int CScriptGameObject::Weapon_UnderbarrelShotgun_Status()
+{
+    CWeapon* weapon = smart_cast<CWeapon*>(&object());
+    if (!weapon)
+    {
+        ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,
+            "CWeapon : cannot access class member Weapon_UnderbarrelShotgun_Status!");
+        return (false);
+    }
+    return (int)weapon->get_ShotgunStatus();
+}
+
 int CScriptGameObject::Weapon_Scope_Status()
 {
 	CWeapon* weapon = smart_cast<CWeapon*>(&object());
@@ -2271,8 +2283,10 @@ bool CScriptGameObject::is_door_blocked_by_npc() const
 
 //Alundaio: Methods for exporting the ability to detach/attach addons for magazined weapons
 #ifdef GAME_OBJECT_EXTENDED_EXPORTS
+#include <WeaponMagazinedWShotgun.h>
 void CScriptGameObject::Weapon_AddonAttach(CScriptGameObject* item)
 {
+    CGameObject Temp = object();
 	CWeaponMagazined* weapon = smart_cast<CWeaponMagazined*>(&object());
 	if (!weapon)
 	{
@@ -2291,6 +2305,16 @@ void CScriptGameObject::Weapon_AddonAttach(CScriptGameObject* item)
 	{
 		weapon->Attach(pItm, true);
 	}
+
+    CWeaponMagazinedWShotgun* weaponWShotgun = smart_cast<CWeaponMagazinedWShotgun*>(&object());
+    if (!weaponWShotgun)
+    {
+        return;
+    }
+    if (weaponWShotgun->CanAttach(pItm))
+    {
+        weaponWShotgun->Attach(pItm, true);
+    }
 }
 
 void CScriptGameObject::Weapon_AddonDetach(LPCSTR item_section, bool b_spawn_item)
@@ -2307,6 +2331,16 @@ void CScriptGameObject::Weapon_AddonDetach(LPCSTR item_section, bool b_spawn_ite
 	{
 		weapon->Detach(item_section, b_spawn_item);
 	}
+
+    CWeaponMagazinedWShotgun* weaponWShotgun = smart_cast<CWeaponMagazinedWShotgun*>(&object());
+    if (!weaponWShotgun)
+    {
+        return;
+    }
+    if (weaponWShotgun->CanDetach(item_section))
+    {
+        weaponWShotgun->Detach(item_section, b_spawn_item);
+    }
 }
 
 void CScriptGameObject::Weapon_SetCurrentScope(u8 type)

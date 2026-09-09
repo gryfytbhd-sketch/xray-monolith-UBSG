@@ -9,6 +9,8 @@
 #include "alife_space.h"
 #include "../xrEngine/render.h"
 #include "anticheat_dumpable_object.h"
+//trying to resolve compiling error
+#include "CameraRecoil.h"
 
 class CCartridge;
 class CParticlesObject;
@@ -176,7 +178,57 @@ public:
 		}
 	};
 
+    struct ShotgunParams
+    {
+
+        // recoil params
+        CameraRecoil cam_recoil;
+        CameraRecoil zoom_cam_recoil;
+
+        //misc
+        float crosshair_inertion;
+        float zoom_rotate_time;
+
+        // accuracy (nobody cares about pdm)
+        float fire_dispersion_base;
+
+        // damage
+        float l_fHitPower;
+        float hit_impulse;
+
+        // bullet params
+        float fire_distance;
+        float bullet_speed;
+
+        // rpm
+        float fOneShotTime;
+
+        ShotgunParams() { Reset(); }
+        IC void Reset()
+        {
+            // these values are not koeffs btw
+
+            // recoil
+            cam_recoil.Clone(CameraRecoil());
+            zoom_cam_recoil.Clone(CameraRecoil());
+
+            // the rest
+            crosshair_inertion = 0.f;
+            zoom_rotate_time = 0.25f;
+            fire_dispersion_base = 0.f;
+            l_fHitPower = 0.f;
+            hit_impulse = 0.f;
+            fire_distance = 1000.f;
+            bullet_speed = 1000.f;
+            fOneShotTime = 60.f;
+
+        }
+    };
+
 	LauncherKoeffs m_launcher_koef;
+
+    // we need another struct for shotgun_params
+    ShotgunParams m_shotgun_params;
 
 public:
 	LauncherKoeffs cur_launcher_koef;

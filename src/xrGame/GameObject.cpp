@@ -608,6 +608,10 @@ void CGameObject::spawn_supplies()
 							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonSilencer, bSilencer);
 						if (W->m_grenade_launcher_status == ALife::eAddonAttachable)
 							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher, bLauncher);
+
+                        // debating keeping this
+                        if (W->m_shotgun_status == ALife::eAddonAttachable)
+                            W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonShotgun, bLauncher);
 					}
 
 					NET_Packet P;

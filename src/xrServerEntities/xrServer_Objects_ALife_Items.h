@@ -222,7 +222,6 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeaponMagazinedWGL, CSE_ALifeItemWeapon
 	virtual CSE_ALifeItemWeapon* cast_item_weapon() { return this; }
 SERVER_ENTITY_DECLARE_END
 
-
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeaponMagazinedWSG, CSE_ALifeItemWeaponMagazined)
     bool m_bShotgunMode;
     CSE_ALifeItemWeaponMagazinedWSG(LPCSTR caSection);
