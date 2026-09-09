@@ -843,6 +843,47 @@ void CSE_ALifeItemWeaponMagazinedWGL::FillProps			(LPCSTR pref, PropItemVec& ite
 }
 #endif // #ifndef XRGAME_EXPORTS
 
+// CSE_ALifeItemWeaponMagazinedWSG
+CSE_ALifeItemWeaponMagazinedWSG::
+CSE_ALifeItemWeaponMagazinedWSG(LPCSTR caSection) : CSE_ALifeItemWeaponMagazined(caSection)
+{
+	m_bShotgunMode = 0;
+}
+
+CSE_ALifeItemWeaponMagazinedWSG::~CSE_ALifeItemWeaponMagazinedWSG()
+{
+}
+
+void CSE_ALifeItemWeaponMagazinedWSG::UPDATE_Read(NET_Packet& P)
+{
+	m_bShotgunMode = !!P.r_u8();
+	inherited::UPDATE_Read(P);
+}
+
+void CSE_ALifeItemWeaponMagazinedWSG::UPDATE_Write(NET_Packet& P)
+{
+	P.w_u8(m_bShotgunMode ? 1 : 0);
+	inherited::UPDATE_Write(P);
+}
+
+void CSE_ALifeItemWeaponMagazinedWSG::STATE_Read(NET_Packet& P, u16 size)
+{
+	inherited::STATE_Read(P, size);
+}
+
+void CSE_ALifeItemWeaponMagazinedWSG::STATE_Write(NET_Packet& P)
+{
+	inherited::STATE_Write(P);
+}
+
+#ifndef XRGAME_EXPORTS
+void CSE_ALifeItemWeaponMagazinedWSG::FillProps			(LPCSTR pref, PropItemVec& items)
+{
+	inherited::FillProps			(pref, items);
+}
+#endif // #ifndef XRGAME_EXPORTS
+
+
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeItemAmmo
 ////////////////////////////////////////////////////////////////////////////

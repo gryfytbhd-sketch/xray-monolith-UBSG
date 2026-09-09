@@ -193,6 +193,7 @@ void export_classes	(lua_State *L)
 	CSE_ALifeItemWeapon::script_register(L);
 	CSE_ALifeItemWeaponMagazined::script_register(L);
 	CSE_ALifeItemWeaponMagazinedWGL::script_register(L);
+    CSE_ALifeItemWeaponMagazinedWSG::script_register(L);
 	CSE_ALifeItemWeaponShotGun::script_register(L);
 	CSE_ALifeItemWeaponAutoShotGun::script_register(L);
 	CSE_ALifeItemDetector::script_register(L);

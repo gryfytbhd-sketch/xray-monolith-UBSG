@@ -306,6 +306,7 @@ void CObjectFactory::register_classes()
 	//  [8/17/2006]
 	ADD(CWeaponMagazinedWGrenade, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_MAGAZWGL, "wpn_wmaggl");
 	//  [8/17/2006]
+    ADD(CWeaponMagazinedWSG, CSE_ALifeItemWeaponMagazinedWSG, CLSID_OBJECT_W_MAGAZWSG, "wpn_wmagwsg");
 	ADD(CWeaponFN2000, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_FN2000, "wpn_fn2000");
 	ADD(CWeaponAK74, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_AK74, "wpn_ak74");
 	ADD(CWeaponLR300, CSE_ALifeItemWeaponMagazined, CLSID_OBJECT_W_LR300, "wpn_lr300");
