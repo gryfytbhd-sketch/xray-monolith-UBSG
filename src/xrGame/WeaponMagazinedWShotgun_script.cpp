@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "pch_script.h"
 #include "WeaponMagazinedWShotgun.h"
 
@@ -12,3 +13,4 @@ void CWeaponMagazinedWShotgun::script_register(lua_State* L)
         .def(constructor<>())
     ];
 }
+
