@@ -224,6 +224,14 @@ SERVER_ENTITY_DECLARE_END
 
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeaponMagazinedWSG, CSE_ALifeItemWeaponMagazined)
     bool m_bShotgunMode;
+    enum { eAmmoData = 0x80 };
+    enum { eGrenadeAttachment = 0x02 };
+    bool m_bHasAmmoData;
+    u16 m_inactiveAmmoElapsed;
+    u8 m_inactiveAmmoType;
+    xr_vector<u8> m_shotgunAmmoIDs;
+    void ReadAmmoData(NET_Packet& P);
+    void WriteAmmoData(NET_Packet& P);
     CSE_ALifeItemWeaponMagazinedWSG(LPCSTR caSection);
     virtual ~CSE_ALifeItemWeaponMagazinedWSG();
 

@@ -3,13 +3,16 @@
 
 // include this just in case we want it
 #include "WeaponAutomaticShotgun.h"
+// use the same rocket owner as UBGL weapons without adding another weapon base
+#include "RocketLauncher.h"
 
 #include "script_export_space.h"
 
 //class CWeaponFakeGrenade;
 
 // this is fine because CWeaponAutomaticShotgun inherits CWeaponMagazined already, it just allows us to have tri-state reloads as well
-class CWeaponMagazinedWShotgun : public CWeaponAutomaticShotgun
+// class CWeaponMagazinedWShotgun : public CWeaponAutomaticShotgun
+class CWeaponMagazinedWShotgun : public CWeaponAutomaticShotgun, public CRocketLauncher
 {
     // wrong inherited oops, should be automatic shotgun
 	typedef CWeaponAutomaticShotgun inherited;
@@ -31,6 +34,20 @@ public:
 
 	virtual void save(NET_Packet& output_packet);
 	virtual void load(IReader& input_packet);
+    // hold saved ammo until the base spawn has finished rebuilding the rifle magazine
+    struct SLoadedAmmo
+    {
+        bool pending = false;
+        bool shotgunMode = false;
+        int elapsed = 0;
+        u32 inactiveElapsed = 0;
+        u8 type = 0;
+        u8 inactiveType = 0;
+        xr_vector<u8> shellTypes;
+    } m_loadedAmmo;
+    void RestoreShotgunAmmo(const xr_vector<u8>& types);
+    void WriteShotgunAmmo(NET_Packet& P);
+    virtual void Reload();
 
 
 	virtual bool Attach(PIItem pIItem, bool b_send_event);
@@ -43,6 +60,16 @@ public:
 	virtual u8 GetCurrentHudOffsetIdx();
 	virtual void FireEnd();
 	void FireShotgun();
+    // the secondary magazine belongs to whichever underbarrel is attached
+    void LaunchGrenade();
+    void EnsureGrenadeRocket();
+    void UnloadRocket();
+    void RefreshSecondaryAmmo(bool grenade);
+    // use the existing fire point getters instead of a separate grenade muzzle helper
+    // Fvector GetGrenadeFirePoint();
+    int GetSecondaryCapacity() const { return m_secondaryIsGrenade ? 1 : iMagazineSizeShotgun; }
+    bool HasUnderbarrel() const { return IsShotgunAttached() || IsGrenadeLauncherAttached(); }
+    bool GetGrenadeLauncherMode() const { return m_bShotgunMode && m_secondaryIsGrenade; }
 
 	virtual void OnStateSwitch(u32 S, u32 oldState);
 
@@ -52,9 +79,21 @@ public:
 
 
 	virtual void state_Fire(float dt);
+	// the bullet firing path uses the second muzzle while the UBSG is selected
+	virtual const Fvector& get_CurrentFirePoint() override
+	{
+		return m_bShotgunMode ? get_LastFP2() : inherited::get_CurrentFirePoint();
+	}
+	// virtual Fmatrix RayTransform() override
+	// {
+	//     return CWeapon::RayTransform(m_bShotgunMode);
+	// }
+	virtual Fmatrix RayTransform() override;
 	virtual void OnShot();
 	virtual void OnEvent(NET_Packet& P, u16 type);
 	virtual void ReloadMagazine();
+    // unload the fake grenade too when scripts or reload logic empty the UBGL chamber
+    virtual void UnloadMagazine(bool spawn_ammo = true) override;
 
 	virtual bool Action(u16 cmd, u32 flags);
 
@@ -103,7 +142,9 @@ public:
 
 	IC bool GetShotgunMode() const
 	{
-		return m_bShotgunMode;
+        // the old mode bit now selects either underbarrel but this script query still means shotgun only
+        // return m_bShotgunMode;
+		return m_bShotgunMode && !m_secondaryIsGrenade;
 	}
 
 	IC void SetShotgunMode(bool mode)
@@ -133,6 +174,14 @@ public:
 	xr_vector<CCartridge> m_magazine2;
 
 	bool m_bShotgunMode;
+    bool m_secondaryIsGrenade = false;
+    // grenade mode uses the existing muzzle settings rather than its own config fields
+    // shared_str m_grenadeFireBone;
+    // Fvector m_grenadeFireOffset;
+    bool m_grenadeRocketPending = false;
+    bool m_cancelPendingRocket = false;
+    xr_vector<shared_str> m_shotgunAmmoTypes;
+    xr_vector<shared_str> m_grenadeAmmoTypes;
 	//adding this to track if it's mag fed or needs tri state reload
 	bool m_bUBSGIsMagFed;
 

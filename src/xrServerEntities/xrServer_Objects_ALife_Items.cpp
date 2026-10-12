@@ -848,32 +848,94 @@ CSE_ALifeItemWeaponMagazinedWSG::
 CSE_ALifeItemWeaponMagazinedWSG(LPCSTR caSection) : CSE_ALifeItemWeaponMagazined(caSection)
 {
 	m_bShotgunMode = 0;
+    m_bHasAmmoData = false;
+    m_inactiveAmmoElapsed = 0;
+    m_inactiveAmmoType = 0;
 }
 
 CSE_ALifeItemWeaponMagazinedWSG::~CSE_ALifeItemWeaponMagazinedWSG()
 {
 }
 
+void CSE_ALifeItemWeaponMagazinedWSG::ReadAmmoData(NET_Packet& P)
+{
+    R_ASSERT(P.r_elapsed() >= 4);
+    m_inactiveAmmoElapsed = P.r_u16();
+    m_inactiveAmmoType = P.r_u8();
+    const u8 count = P.r_u8();
+    R_ASSERT(P.r_elapsed() >= count);
+    m_shotgunAmmoIDs.resize(count);
+    for (u8& type : m_shotgunAmmoIDs)
+        type = P.r_u8();
+}
+
+void CSE_ALifeItemWeaponMagazinedWSG::WriteAmmoData(NET_Packet& P)
+{
+    R_ASSERT(m_shotgunAmmoIDs.size() <= 0xff);
+    P.w_u16(m_inactiveAmmoElapsed);
+    P.w_u8(m_inactiveAmmoType);
+    P.w_u8(u8(m_shotgunAmmoIDs.size()));
+    for (const u8 type : m_shotgunAmmoIDs)
+        P.w_u8(type);
+}
+
 void CSE_ALifeItemWeaponMagazinedWSG::UPDATE_Read(NET_Packet& P)
 {
-	m_bShotgunMode = !!P.r_u8();
-	inherited::UPDATE_Read(P);
+    // m_bShotgunMode = !!P.r_u8();
+    const u8 flags = P.r_u8();
+    m_bShotgunMode = (flags & 1) != 0;
+    m_bHasAmmoData = (flags & eAmmoData) != 0;
+    inherited::UPDATE_Read(P);
+    m_shotgunAmmoIDs.clear();
+    if (m_bHasAmmoData)
+        ReadAmmoData(P);
 }
 
 void CSE_ALifeItemWeaponMagazinedWSG::UPDATE_Write(NET_Packet& P)
 {
-	P.w_u8(m_bShotgunMode ? 1 : 0);
-	inherited::UPDATE_Write(P);
+    const u32 start = P.w_tell();
+    // P.w_u8(m_bShotgunMode ? 1 : 0);
+    const bool grenade = m_grenade_launcher_status == ALife::eAddonPermanent ||
+        (m_grenade_launcher_status == ALife::eAddonAttachable && m_addon_flags.test(eWeaponAddonGrenadeLauncher));
+    // P.w_u8((m_bShotgunMode ? 1 : 0) | (m_bHasAmmoData ? eAmmoData : 0));
+    P.w_u8((m_bShotgunMode ? 1 : 0) | (m_bHasAmmoData ? eAmmoData : 0) | (grenade ? eGrenadeAttachment : 0));
+    inherited::UPDATE_Write(P);
+    if (m_bHasAmmoData)
+        WriteAmmoData(P);
+    R_ASSERT2(P.w_tell() - start <= 0xff, "WSG update exceeds the object packet size limit");
 }
 
 void CSE_ALifeItemWeaponMagazinedWSG::STATE_Read(NET_Packet& P, u16 size)
 {
-	inherited::STATE_Read(P, size);
+    const u32 start = P.r_tell();
+    inherited::STATE_Read(P, size);
+    m_bHasAmmoData = false;
+    m_shotgunAmmoIDs.clear();
+    if (!P.inistream && P.r_tell() - start + sizeof(u16) < size)
+    {
+        const u32 end = start + size - sizeof(u16);
+        R_ASSERT(end >= P.r_tell() + 5);
+        const u8 flags = P.r_u8();
+        R_ASSERT(flags & eAmmoData);
+        m_bShotgunMode = (flags & 1) != 0;
+        const u32 data = P.r_tell();
+        P.r_advance(3);
+        const u8 count = P.r_u8();
+        R_ASSERT(P.r_tell() + count == end);
+        P.r_seek(data);
+        ReadAmmoData(P);
+        m_bHasAmmoData = true;
+    }
 }
 
 void CSE_ALifeItemWeaponMagazinedWSG::STATE_Write(NET_Packet& P)
 {
-	inherited::STATE_Write(P);
+    inherited::STATE_Write(P);
+    if (m_bHasAmmoData && !P.inistream)
+    {
+        P.w_u8((m_bShotgunMode ? 1 : 0) | eAmmoData);
+        WriteAmmoData(P);
+    }
 }
 
 #ifndef XRGAME_EXPORTS

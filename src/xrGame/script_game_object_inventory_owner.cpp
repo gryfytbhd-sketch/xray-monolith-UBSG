@@ -2286,7 +2286,8 @@ bool CScriptGameObject::is_door_blocked_by_npc() const
 #include <WeaponMagazinedWShotgun.h>
 void CScriptGameObject::Weapon_AddonAttach(CScriptGameObject* item)
 {
-    CGameObject Temp = object();
+	// use the live weapon because destroying a copy frees its owned resources
+	//     CGameObject Temp = object();
 	CWeaponMagazined* weapon = smart_cast<CWeaponMagazined*>(&object());
 	if (!weapon)
 	{

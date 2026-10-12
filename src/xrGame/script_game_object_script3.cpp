@@ -516,6 +516,9 @@ class_<CScriptGameObject> script_register_game_object2(class_<CScriptGameObject>
 		.def("has_upgrade", SAFE_WRAP(&CScriptGameObject::HasUpgrade))
 		.def("iterate_installed_upgrades", &CScriptGameObject::IterateInstalledUpgrades)
 		.def("weapon_in_grenade_mode", &CScriptGameObject::WeaponInGrenadeMode)
+		// export the wrapper checks used by the ammo wheel and attachment menu
+		.def("weapon_in_shotgun_mode", &CScriptGameObject::WeaponInShotgunMode)
+		.def("weapon_is_shotgun", &CScriptGameObject::WeaponIsShotgunAttached)
 		// For CHudItem
 		.def("play_hud_motion", SAFE_WRAP(&CScriptGameObject::PlayHudMotion))
 		.def("switch_state", SAFE_WRAP(&CScriptGameObject::SwitchState))
