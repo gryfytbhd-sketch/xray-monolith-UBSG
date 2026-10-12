@@ -54,6 +54,8 @@
 #include "../xrEngine/feel_touch.h"
 #include "weaponammo.h"
 #include "WeaponMagazinedWGrenade.h"
+// needed for the UBSG mode check below
+#include "WeaponMagazinedWShotgun.h"
 #endif
 //-Alundaio
 
@@ -1879,8 +1881,24 @@ u32 CScriptGameObject::GetState()
 	return 65535;
 }
 
+// ordinary weapons return false without failed-cast warnings from inventory checks
+bool CScriptGameObject::WeaponInShotgunMode()
+{
+	CWeaponMagazinedWShotgun* wpn = smart_cast<CWeaponMagazinedWShotgun*>(&object());
+	return wpn && wpn->GetShotgunMode();
+}
+
+bool CScriptGameObject::WeaponIsShotgunAttached()
+{
+	CWeapon* wpn = smart_cast<CWeapon*>(&object());
+	return wpn && wpn->IsShotgunAttached();
+}
+
 bool CScriptGameObject::WeaponInGrenadeMode()
 {
+    // W_WMAGSG can also own a UBGL now but shotgun mode must not look like grenade mode to scripts
+    CWeaponMagazinedWShotgun* shotgun = smart_cast<CWeaponMagazinedWShotgun*>(&object());
+    if (shotgun) return shotgun->GetGrenadeLauncherMode();
 	CWeaponMagazinedWGrenade* wpn = smart_cast<CWeaponMagazinedWGrenade*>(&object());
 	if (!wpn)
 		return false;

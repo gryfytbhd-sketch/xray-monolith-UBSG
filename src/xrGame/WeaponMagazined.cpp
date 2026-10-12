@@ -737,7 +737,9 @@ void CWeaponMagazined::state_Fire(float dt)
 		VERIFY(fOneShotTime > 0.f);
 
 		Fvector p1, d;
-		p1.set(get_LastFP());
+		// use the selected muzzle here, otherwise the UBSG pellets still start at the rifle barrel
+		// 		p1.set(get_LastFP());
+		p1.set(get_CurrentFirePoint());
 		d.set(get_LastFD());
 
 		if (!H_Parent()) return;

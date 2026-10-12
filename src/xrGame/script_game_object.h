@@ -1047,6 +1047,9 @@ public:
 	bool HasUpgrade(LPCSTR upgrade);
 	void IterateInstalledUpgrades(const ::luabind::functor<bool>& functor);
 	bool WeaponInGrenadeMode();
+	// inventory scripts use the game_object wrapper for these UBSG checks
+	bool WeaponInShotgunMode();
+	bool WeaponIsShotgunAttached();
 
 	//Car
 	CScriptGameObject* GetAttachedVehicle();

@@ -13,6 +13,8 @@
 
 #include "../Weapon.h"
 #include "../WeaponMagazinedWGrenade.h"
+// W_WMAGSG now has a real secondary magazine for either underbarrel
+#include "../WeaponMagazinedWShotgun.h"
 #include "../WeaponAmmo.h"
 #include "../Silencer.h"
 #include "../Scope.h"
@@ -643,6 +645,18 @@ void CUIActorMenu::highlight_ammo_for_weapon(PIItem weapon_item, CUIDragDropList
 		}
 	}
 
+	// include inactive underbarrel ammo on the WSG class just as the WGL path does above
+	CWeaponMagazinedWShotgun* ws = smart_cast<CWeaponMagazinedWShotgun*>(weapon_item);
+	// if (ws && ws->HasUnderbarrel())
+	// 	ammo_types.insert(ammo_types.end(), ws->m_ammoTypes2.begin(), ws->m_ammoTypes2.end());
+	if (ws)
+	{
+		if (ws->HasUnderbarrel() && ws->m_ammoTypes2.size())
+		{
+			ammo_types.insert(ammo_types.end(), ws->m_ammoTypes2.begin(), ws->m_ammoTypes2.end());
+		}
+	}
+
 	if (ammo_types.size() == 0)
 	{
 		return;
@@ -716,6 +730,14 @@ void CUIActorMenu::highlight_weapons_for_ammo(PIItem ammo_item, CUIDragDropListE
 			}
 		}
 
+		// check the WSG inactive magazine too without changing ordinary WGL highlighting
+		CWeaponMagazinedWShotgun* ws = smart_cast<CWeaponMagazinedWShotgun*>(item);
+		if (ws && ws->HasUnderbarrel() &&
+			std::find(ws->m_ammoTypes2.begin(), ws->m_ammoTypes2.end(), ammo_name) != ws->m_ammoTypes2.end())
+		{
+			ci->m_select_armament = true;
+			break;
+		}
 		CWeaponMagazinedWGrenade* wg = smart_cast<CWeaponMagazinedWGrenade*>(item);
 		if (!wg || !wg->IsGrenadeLauncherAttached() || !wg->m_ammoTypes2.size())
 		{
@@ -756,6 +778,8 @@ bool CUIActorMenu::highlight_addons_for_weapon(PIItem weapon_item, CUICellItem* 
 		return true;
 	}
 
+	// UBSG attachments are represented by CGrenadeLauncher/W_GLAUNC
+	// CWeaponMagazinedWShotgun::CanAttach performs the shotgun_name check
 	CGrenadeLauncher* pGrenadeLauncher = smart_cast<CGrenadeLauncher*>(item);
 	if (pGrenadeLauncher && weapon_item->CanAttach(pGrenadeLauncher))
 	{
@@ -772,6 +796,7 @@ void CUIActorMenu::highlight_weapons_for_addon(PIItem addon_item, CUIDragDropLis
 
 	CScope* pScope = smart_cast<CScope*>(addon_item);
 	CSilencer* pSilencer = smart_cast<CSilencer*>(addon_item);
+	// UBSG attachments reuse the grenade-launcher item class
 	CGrenadeLauncher* pGrenadeLauncher = smart_cast<CGrenadeLauncher*>(addon_item);
 
 	if (!pScope && !pSilencer && !pGrenadeLauncher)

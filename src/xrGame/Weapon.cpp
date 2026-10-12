@@ -1913,8 +1913,9 @@ bool CWeapon::SilencerAttachable()
 #define WPN_SCOPE "wpn_scope"
 #define WPN_SILENCER "wpn_silencer"
 #define WPN_GRENADE_LAUNCHER "wpn_launcher"
-// set it to wpn_launcer for testing
-#define WPN_SHOTGUN_LAUNCHER "wpn_launcher"
+// give the shotgun its own bone so showing it does not also show the grenade launcher
+// #define WPN_SHOTGUN_LAUNCHER "wpn_launcher"
+#define WPN_SHOTGUN_LAUNCHER "wpn_shotgun"
 #define WPN_SCOPED_HIDE "wpn_scoped_hide"
 #define WPN_SCOPED_UNHIDE "wpn_scoped_unhide"
 
@@ -1965,9 +1966,14 @@ void CWeapon::UpdateHUDAddonsVisibility()
 	else if (m_eSilencerStatus == ALife::eAddonPermanent)
 		HudItemData()->set_bone_visible(wpn_silencer, TRUE, TRUE);
 
+	// show the UBGL mesh according to its addon status and skip missing bones
+	// HudItemData()->set_bone_visible(wpn_grenade_launcher,
+	//     IsGrenadeLauncherAttached() || IsShotgunAttached(), TRUE);
+	// HudItemData()->set_bone_visible(wpn_grenade_launcher, IsGrenadeLauncherAttached(), TRUE);
 	if (GrenadeLauncherAttachable())
 	{
-		HudItemData()->set_bone_visible(wpn_grenade_launcher, IsGrenadeLauncherAttached());
+		// HudItemData()->set_bone_visible(wpn_grenade_launcher, IsGrenadeLauncherAttached());
+		HudItemData()->set_bone_visible(wpn_grenade_launcher, IsGrenadeLauncherAttached(), TRUE);
 	}
 	if (m_eGrenadeLauncherStatus == ALife::eAddonDisabled)
 	{
@@ -1975,11 +1981,13 @@ void CWeapon::UpdateHUDAddonsVisibility()
 	}
 	else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent)
 		HudItemData()->set_bone_visible(wpn_grenade_launcher, TRUE, TRUE);
-	//show/hide in Inventory UI i think ??
-    // no, this is for hud model - ver
+
+	// the UBSG controls its own mesh and older HUD models may not have its bone
+	// HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached(), TRUE);
 	if (ShotgunAttachable())
 	{
-		HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached());
+		// HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached());
+		HudItemData()->set_bone_visible(wpn_shotgun_launcher, IsShotgunAttached(), TRUE);
 	}
 	if (m_eShotgunStatus == ALife::eAddonDisabled)
 	{
@@ -2047,8 +2055,17 @@ void CWeapon::UpdateAddonsVisibility()
 		//		Log("silencer", pWeaponVisual->LL_GetBoneVisible	(bone_id));
 	}
 
+	// either attachment can keep the shared underbarrel zoom mode active
+	const BOOL launcher_visible = IsGrenadeLauncherAttached() || IsShotgunAttached();
+	// keep the UBGL mesh separate from the UBSG mesh
 	bone_id = pWeaponVisual->LL_BoneID(wpn_grenade_launcher);
-	if (GrenadeLauncherAttachable())
+	// if (bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) != launcher_visible)
+	//     pWeaponVisual->LL_SetBoneVisible(bone_id, launcher_visible, TRUE);
+	// if (bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) != IsGrenadeLauncherAttached())
+	//     pWeaponVisual->LL_SetBoneVisible(bone_id, IsGrenadeLauncherAttached(), TRUE);
+	// if (GrenadeLauncherAttachable())
+	// check for a missing bone in the attachable path too
+	if (GrenadeLauncherAttachable() && bone_id != BI_NONE)
 	{
 		if (IsGrenadeLauncherAttached())
 		{
@@ -2057,7 +2074,8 @@ void CWeapon::UpdateAddonsVisibility()
 		}
 		else
 		{
-			isGrenadeLauncherActive = false;
+			// the shared zoom flag is checked after both attachments below
+			// isGrenadeLauncherActive = false;
 			if (pWeaponVisual->LL_GetBoneVisible(bone_id))
 				pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
 		}
@@ -2066,14 +2084,20 @@ void CWeapon::UpdateAddonsVisibility()
 		pWeaponVisual->LL_GetBoneVisible(bone_id))
 	{
 		pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-		//		Log("gl", pWeaponVisual->LL_GetBoneVisible			(bone_id));
 	}
-	//setting up bone hiding i think ???
+	else if (m_eGrenadeLauncherStatus == ALife::eAddonPermanent && bone_id != BI_NONE &&
+		!pWeaponVisual->LL_GetBoneVisible(bone_id))
+	{
+		pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
+	}
 
-    // this is world model - ver
-    // also uhhh what are you doing?? - ver
-    bone_id = pWeaponVisual->LL_BoneID(wpn_shotgun_launcher);
-	if (ShotgunAttachable())
+	// use the separate shotgun bone with the existing launcher visibility pattern
+	bone_id = pWeaponVisual->LL_BoneID(wpn_shotgun_launcher);
+	// if (bone_id != BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) != IsShotgunAttached())
+	//     pWeaponVisual->LL_SetBoneVisible(bone_id, IsShotgunAttached(), TRUE);
+	// if (ShotgunAttachable())
+	// check for a missing bone in the attachable path too
+	if (ShotgunAttachable() && bone_id != BI_NONE)
 	{
 		if (IsShotgunAttached())
 		{
@@ -2082,18 +2106,26 @@ void CWeapon::UpdateAddonsVisibility()
 		}
 		else
 		{
-            // variable is only used for zoom type handling, no need to differentiate the two
-			//isShotgunActive = false;
-            isGrenadeLauncherActive = false;
+			// the shared zoom flag is checked after both attachments below
+			// isGrenadeLauncherActive = false;
 			if (pWeaponVisual->LL_GetBoneVisible(bone_id))
 				pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
 		}
 	}
-	if (m_eShotgunStatus== ALife::eAddonDisabled && bone_id != BI_NONE &&
+	if (m_eShotgunStatus == ALife::eAddonDisabled && bone_id != BI_NONE &&
 		pWeaponVisual->LL_GetBoneVisible(bone_id))
-		{
-			pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
-		}
+	{
+		pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+	}
+	else if (m_eShotgunStatus == ALife::eAddonPermanent && bone_id != BI_NONE &&
+		!pWeaponVisual->LL_GetBoneVisible(bone_id))
+	{
+		pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
+	}
+
+	// clear underbarrel zoom only when neither attachment remains fitted
+	if (!launcher_visible && (GrenadeLauncherAttachable() || ShotgunAttachable()))
+		isGrenadeLauncherActive = false;
 
 	pWeaponVisual->CalculateBones_Invalidate();
 	pWeaponVisual->CalculateBones(TRUE);
@@ -3406,6 +3438,14 @@ void CWeapon::UpdateSecondVP()
 
 Fmatrix CWeapon::RayTransform()
 {
+	// keep the normal muzzle as the default, but let the UBSG select the other one
+	return RayTransform(false);
+}
+
+// use the existing primary or secondary muzzle with the same aiming calculations
+// Fmatrix CWeapon::RayTransform(bool secondary_fire_point, u16 fire_bone_override, const Fvector* fire_point_override)
+Fmatrix CWeapon::RayTransform(bool secondary_fire_point)
+{
 	attachable_hud_item* hi = HudItemData();
 	hud_item_measures& measures = hi->m_measures;
 
@@ -3415,8 +3455,19 @@ Fmatrix CWeapon::RayTransform()
 	{
 		// If we're in first-person, use the HUD item transform
 		matrix = hi->m_item_transform;
-		matrix.mulB_43(hi->m_model->LL_GetTransform(measures.m_fire_bone));
-		matrix.mulB_43(Fmatrix().translate(measures.m_fire_point_offset));
+		// actor firing uses this ray too, so choosing FP2 elsewhere was not enough
+		// 		matrix.mulB_43(hi->m_model->LL_GetTransform(measures.m_fire_bone));
+		// 		matrix.mulB_43(Fmatrix().translate(measures.m_fire_point_offset));
+		const bool use_secondary = secondary_fire_point && measures.m_prop_flags.test(hud_item_measures::e_fire_point2);
+		// the weapon selects between the two existing HUD muzzles
+		// const u16 bone = fire_bone_override != BI_NONE ? fire_bone_override :
+		//     (use_secondary ? measures.m_fire_bone2 : measures.m_fire_bone);
+		// const Fvector& offset = fire_point_override ? *fire_point_override :
+		//     (use_secondary ? measures.m_fire_point2_offset : measures.m_fire_point_offset);
+		// matrix.mulB_43(hi->m_model->LL_GetTransform(bone));
+		// matrix.mulB_43(Fmatrix().translate(offset));
+		matrix.mulB_43(hi->m_model->LL_GetTransform(use_secondary ? measures.m_fire_bone2 : measures.m_fire_bone));
+		matrix.mulB_43(Fmatrix().translate(use_secondary ? measures.m_fire_point2_offset : measures.m_fire_point_offset));
 	}
 	else
 	{
@@ -3448,7 +3499,9 @@ Fmatrix CWeapon::RayTransform()
 		}
 
 		// Offset by the world-space fire point
-		matrix.mulB_43(Fmatrix().translate(vLoadedFirePoint));
+		// same idea for third person, use the second world fire point while the UBSG is selected
+		// 		matrix.mulB_43(Fmatrix().translate(vLoadedFirePoint));
+		matrix.mulB_43(Fmatrix().translate(secondary_fire_point ? vLoadedFirePoint2 : vLoadedFirePoint));
 	}
 
 	ApplyAimModifiers(matrix);

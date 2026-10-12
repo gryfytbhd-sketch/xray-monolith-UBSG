@@ -97,6 +97,8 @@
 #	include "weaponRG6.h"
 #	include "weaponSSRS.h"
 #	include "WeaponStatMgun.h"
+// include the native WSG class for its factory registration
+#	include "WeaponMagazinedWShotgun.h"
 
 #	include "scope.h"
 #	include "silencer.h"
@@ -305,6 +307,8 @@ void CObjectFactory::register_classes()
 	//  [8/15/2006]
 	//  [8/17/2006]
 	ADD(CWeaponMagazinedWGrenade, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_MAGAZWGL, "wpn_wmaggl");
+	// pair W_WMAGSG with its own server class instead of treating it as a regular UBGL
+	ADD(CWeaponMagazinedWShotgun, CSE_ALifeItemWeaponMagazinedWSG, CLSID_OBJECT_W_MAGAZWSG, "wpn_wmagsg");
 	//  [8/17/2006]
 	ADD(CWeaponFN2000, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_FN2000, "wpn_fn2000");
 	ADD(CWeaponAK74, CSE_ALifeItemWeaponMagazinedWGL, CLSID_OBJECT_W_AK74, "wpn_ak74");

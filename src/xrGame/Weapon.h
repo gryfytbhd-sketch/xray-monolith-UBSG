@@ -572,6 +572,9 @@ public:
 	Fmatrix RayTransform();
 
 protected:
+	// use the existing aiming and wall checks with the selected muzzle
+	// Fmatrix RayTransform(bool secondary_fire_point, u16 fire_bone_override = BI_NONE, const Fvector* fire_point_override = nullptr);
+	Fmatrix RayTransform(bool secondary_fire_point);
 	virtual void UpdateFireDependencies_internal();
 	void UpdateUIScope();
 	void SwitchZoomType();
